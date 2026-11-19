@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zotero Cloud Bridge</title>
+  <link rel="stylesheet" href="/dashboard.css">
+  <script src="/dashboard.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1>Zotero Cloud Bridge</h1>
+    <section aria-labelledby="provider-heading">
+      <header>
+        <h2 id="provider-heading">Cloud provider</h2>
+        <span id="active" class="badge" role="status">Checking connection…</span>
+      </header>
+      <form id="connect-form">
+        <label for="provider">Provider</label>
+        <div class="actions">
+          <select id="provider" name="provider" disabled>
+            <option value="google_drive">Google Drive</option>
+            <option value="one_drive">OneDrive</option>
+          </select>
+          <button id="connect" type="submit" disabled>Connect</button>
+        </div>
+      </form>
+      <div id="progress" hidden>
+        <p id="phase" role="status"></p>
+        <form id="question-form" hidden>
+          <fieldset>
+            <legend id="prompt"></legend>
+            <div id="choices"></div>
+          </fieldset>
+          <button type="submit" id="continue">Continue</button>
+        </form>
+        <button id="cancel" type="button" class="secondary" hidden>Cancel</button>
+      </div>
+      <p id="request-error" role="alert" hidden></p>
+    </section>
+    <section aria-labelledby="webdav-heading">
+      <header>
+        <h2 id="webdav-heading">WebDAV</h2>
+        <button id="webdav" class="switch" type="button" role="switch" aria-labelledby="webdav-heading" aria-checked="false" disabled></button>
+      </header>
+      <p id="webdav-message" role="status">Checking WebDAV status…</p>
+      <p id="webdav-error" role="alert" hidden></p>
+      <div id="webdav-details" hidden>
+        <p id="webdav-port-changed" role="alert" hidden>The WebDAV port changed. Update the URL in Zotero and verify the server again.</p>
+        <div class="endpoint-fields">
+          <label for="webdav-url">Local WebDAV URL</label>
+          <input id="webdav-url" type="text" readonly>
+          <label for="webdav-user">Username</label>
+          <input id="webdav-user" type="text" readonly>
+          <label for="webdav-password">Password</label>
+          <input id="webdav-password" type="password" readonly>
+        </div>
+        <label class="show-password"><input id="webdav-show-password" type="checkbox"> Show password</label>
+        <p>In Zotero, open <strong>Settings → Account → File Syncing</strong>, select <strong>WebDAV</strong> for <strong>My Library</strong>, and choose <strong>Verify Server</strong>. Zotero adds <code>/zotero/</code> automatically.</p>
+        <p>On another device, use the HTTPS URL from your reverse proxy and the WebDAV credentials above. Set a <strong>Preferred port</strong> in Advanced to keep the proxy's upstream address stable.</p>
+      </div>
+      <details id="advanced">
+        <summary>Advanced</summary>
+        <p id="advanced-status" role="status" hidden></p>
+        <p id="advanced-error" role="alert" hidden></p>
+        <form id="advanced-form" hidden>
+          <fieldset id="advanced-fields" disabled>
+            <div class="endpoint-fields">
+              <label for="advanced-folder">Cloud folder</label>
+              <input id="advanced-folder" type="text" required>
+              <label for="advanced-mode">WebDAV port</label>
+              <select id="advanced-mode">
+                <option value="auto">Automatic</option>
+                <option value="preferred">Preferred port</option>
+              </select>
+              <label for="advanced-port" id="advanced-port-label" hidden>Port number</label>
+              <input id="advanced-port" type="number" min="1" max="65535" step="1" required hidden disabled>
+              <label for="advanced-username">Username</label>
+              <input id="advanced-username" type="text" required>
+              <label for="advanced-password">Password</label>
+              <input id="advanced-password" type="password" autocomplete="new-password" placeholder="Keep saved password or generate one">
+            </div>
+            <p>Use a path relative to your drive. Changing folders switches where Zotero reads and writes attachments. Files stay in their original folders.</p>
+            <button id="advanced-apply" type="submit">Apply settings</button>
+          </fieldset>
+        </form>
+      </details>
+    </section>
+    <section aria-labelledby="sync-heading">
+      <header><h2 id="sync-heading">Cloud folder check</h2></header>
+      <p>Capture a baseline before importing a test PDF as a stored attachment in My Library. Sync in Zotero, then check the folder for new objects.</p>
+      <div class="sync-actions">
+        <button id="sync-baseline" class="secondary" type="button" disabled>Capture baseline</button>
+        <button id="sync-check" type="button" disabled>Check cloud folder</button>
+      </div>
+      <p id="sync-progress" role="status" hidden></p>
+      <p id="sync-error" role="alert" hidden></p>
+      <div id="sync-results" hidden>
+        <p id="sync-summary" role="status"></p>
+        <div class="sync-table">
+          <table id="sync-table" aria-label="Cloud objects" hidden>
+            <thead>
+              <tr><th scope="col">Cloud path</th><th scope="col">Size (bytes)</th></tr>
+            </thead>
+            <tbody id="sync-objects"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

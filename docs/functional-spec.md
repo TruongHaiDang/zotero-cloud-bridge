@@ -48,7 +48,7 @@ Keep Bridge and rclone settings in separate files. Bridge stores the remote refe
 - **Service lifecycle.** Should WebDAV start when the app opens, keep running in the background after the dashboard closes, or start on macOS login? If the saved port is in use at startup, should the service preserve the URL or select a new port automatically?
 - **Authorization and secrets.** Decide how to register OAuth applications for each provider, what scopes to request, and how to store configurations containing tokens and WebDAV credentials on macOS.
 - **Dashboard verification.** Decide whether to list the files visible on the remote or guide users through verification of a specific PDF. Define how to identify the test upload when WebDAV object names differ from the PDF filename.
-- **Advanced settings and HTTPS milestones.** Should Advanced settings ship with Google Drive or later? Should Bridge document server-side HTTPS setup or support it from the dashboard?
+- **HTTPS verification.** The operator configures the reverse proxy using the [HTTPS setup guide](5.multi-device-https.md). Select the Zotero mobile platforms and versions for end-to-end verification.
 
 ## 5. References
 
