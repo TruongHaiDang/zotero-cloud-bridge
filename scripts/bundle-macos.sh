@@ -78,6 +78,7 @@ launcher="$bundle/Contents/MacOS/zotero-cloud-bridge"
 install -m 755 "$executable" "$launcher"
 unzip -p "$archive" "$release/rclone" > "$stage/rclone"
 install -m 755 "$stage/rclone" "$bundle/Contents/Resources/rclone"
+install -m 644 "$repo/assets/AppIcon.icns" "$bundle/Contents/Resources/AppIcon.icns"
 cat > "$bundle/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -87,12 +88,16 @@ cat > "$bundle/Contents/Info.plist" <<'PLIST'
   <string>zotero-cloud-bridge</string>
   <key>CFBundleIdentifier</key>
   <string>com.truonghaidang.zotero-cloud-bridge</string>
+  <key>CFBundleIconFile</key>
+  <string>AppIcon.icns</string>
   <key>CFBundleName</key>
   <string>Zotero Cloud Bridge</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
   <string>0.1.0</string>
+  <key>LSUIElement</key>
+  <true/>
 </dict>
 </plist>
 PLIST
@@ -111,5 +116,7 @@ if "$run_app"; then
   trap 'stop_bridge 143' TERM
   wait "$bridge_pid"
 else
+  # Notify Finder when replacing the contents of an existing app bundle.
+  touch "$bundle"
   printf '%s\n' "$bundle"
 fi

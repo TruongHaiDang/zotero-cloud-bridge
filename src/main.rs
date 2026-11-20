@@ -10,8 +10,41 @@ use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::sync::Arc;
 
+#[cfg(target_os = "macos")]
+static MENU_QUIT: tokio::sync::Notify = tokio::sync::Notify::const_new();
+
+#[cfg(target_os = "macos")]
+extern "C" fn request_menu_quit() {
+    MENU_QUIT.notify_one();
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    #[cfg(target_os = "macos")]
+    {
+        unsafe extern "C" {
+            fn bridge_run_menu_bar(request_quit: extern "C" fn());
+        }
+
+        std::thread::spawn(|| {
+            let code = match run_bridge() {
+                Ok(()) => 0,
+                Err(error) => {
+                    eprintln!("Zotero Cloud Bridge: {error}");
+                    1
+                }
+            };
+            std::process::exit(code);
+        });
+        // AppKit's event loop must run on the main thread.
+        unsafe { bridge_run_menu_bar(request_menu_quit) };
+        Ok(())
+    }
+    #[cfg(not(target_os = "macos"))]
+    run_bridge()
+}
+
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn run_bridge() -> Result<(), Box<dyn std::error::Error>> {
     let home = std::env::var_os("HOME")
         .filter(|home| !home.is_empty())
         .ok_or_else(|| io::Error::other("HOME is required to locate Bridge's configuration"))?;
@@ -52,6 +85,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 async fn shutdown_signal() {
+    #[cfg(target_os = "macos")]
+    tokio::select! {
+        _ = MENU_QUIT.notified() => {},
+        _ = terminal_shutdown_signal() => {},
+    }
+    #[cfg(not(target_os = "macos"))]
+    terminal_shutdown_signal().await;
+}
+
+async fn terminal_shutdown_signal() {
     use tokio::signal::unix::{SignalKind, signal};
 
     if let Ok(mut terminate) = signal(SignalKind::terminate()) {
