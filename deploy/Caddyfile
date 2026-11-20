@@ -1,0 +1,10 @@
+{$BRIDGE_WEBDAV_HOST} {
+	@zotero path /zotero /zotero/*
+	handle @zotero {
+		reverse_proxy 127.0.0.1:{$BRIDGE_WEBDAV_PORT:18765}
+	}
+
+	handle {
+		respond 404
+	}
+}
